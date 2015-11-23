@@ -1,0 +1,36 @@
+phidias-api-resource-files-editor {
+
+    ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .phidias-api-filesystem-dropzone {
+
+        cursor: pointer;
+
+        background: #eee;
+        border-radius: 4px;
+        border: 2px dashed #bbb;
+
+        text-align: center;    
+
+        & > div {
+            color: #444;
+            padding: 18px;
+            font-size: 18px;
+        }
+
+        &.nv-file-over {
+            border: 2px solid red;
+        }
+
+    }
+
+    // hide file input
+    input[type=file] {
+        display: none;
+    }
+
+}
