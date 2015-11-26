@@ -24,28 +24,28 @@
                         '</div>'
         };
 
+    }
 
-        phidiasApiResourceYoutubeController.$inject = ["phidiasApi"];
-        function phidiasApiResourceYoutubeController(phidiasApi) {
-            var vm     = this;
-            vm.videoId = getYoutubeId(vm.src);
+
+    phidiasApiResourceYoutubeController.$inject = ["phidiasApi"];
+    function phidiasApiResourceYoutubeController(phidiasApi) {
+        var vm     = this;
+        vm.videoId = getYoutubeId(vm.src);
+    }
+
+    function getYoutubeId(url) {
+
+        if (!url.trim().length) {
+            return null;
         }
 
-        function getYoutubeId(url) {
-
-            if (!url.trim().length) {
-                return null;
-            }
-
-            var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            var match  = url.match(regExp);
-            if (match && match[2].length == 11) {
-                return match[2];
-            } else {
-                return null;
-            }
-        };
-
-    }
+        var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        var match  = url.match(regExp);
+        if (match && match[2].length == 11) {
+            return match[2];
+        } else {
+            return null;
+        }
+    };
 
 })();

@@ -6,6 +6,8 @@
     "./public/build/phidias-api.js"
   ],
   
+  "ignore": [],
+
   "dependencies": {
     "phidias-ui": "*",
     "angular-file-upload": "*"

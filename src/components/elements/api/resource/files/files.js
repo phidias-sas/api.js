@@ -5,17 +5,14 @@
         .module("phidias-api")
         .directive("phidiasApiResourceFiles", phidiasApiResourceFiles);
 
-
     function phidiasApiResourceFiles() {
 
-
         return {
-            restrict: "E",
 
+            restrict: "E",
             scope: {
                 src: "@"
             },
-
             controller:       phidiasApiResourceFilesController,
             controllerAs:     "vm",
             bindToController: true,
@@ -33,20 +30,18 @@
                         '</ul>'
         };
 
-        ///////////////////////////////////
+    }
 
-        phidiasApiResourceFilesController.$inject = ["phidiasApi"];
-        function phidiasApiResourceFilesController(phidiasApi) {
+    phidiasApiResourceFilesController.$inject = ["phidiasApi"];
+    function phidiasApiResourceFilesController(phidiasApi) {
 
-            var vm   = this;
-            vm.files = [];
+        var vm   = this;
+        vm.files = [];
 
-            phidiasApi.get(vm.src)
-                .success(function(response) {
-                    vm.files = response;
-                });
-
-        }
+        phidiasApi.get(vm.src)
+            .success(function(response) {
+                vm.files = response;
+            });
 
     }
 

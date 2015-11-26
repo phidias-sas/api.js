@@ -22,20 +22,20 @@
             template:   '<div ng-bind-html="vm.html.body"></div>'
         };
 
+    }
 
-        phidiasApiResourceHtmlController.$inject = ["phidiasApi"];
-        function phidiasApiResourceHtmlController(phidiasApi) {
 
-            var vm  = this;
-            vm.html = null;
+    phidiasApiResourceHtmlController.$inject = ["phidiasApi"];
+    function phidiasApiResourceHtmlController(phidiasApi) {
 
-            phidiasApi.get(vm.src)
-                .success(function(response) {
-                    vm.html = response;
+        var vm  = this;
+        vm.html = null;
 
-                });
+        phidiasApi.get(vm.src)
+            .success(function(response) {
+                vm.html = response;
 
-        }
+            });
 
     }
 

@@ -5,7 +5,6 @@
         .module("phidias-api")
         .directive("phidiasApiResourceForm", phidiasApiResourceForm);
 
-
     function phidiasApiResourceForm() {
 
         return {
@@ -70,56 +69,57 @@
         };
 
 
-        phidiasApiResourceFormController.$inject = ["phidiasApi"];
-        function phidiasApiResourceFormController(phidiasApi) {
+    };
 
-            var vm               = this;
-            vm.entity            = null;
-            vm.records           = null;
-            vm.currentRecord     = {};
-            vm.saveCurrentRecord = saveCurrentRecord;
 
-            // Determine the current user, and the records URL
-            var recordsUrl  = null;
+    phidiasApiResourceFormController.$inject = ["phidiasApi"];
+    function phidiasApiResourceFormController(phidiasApi) {
 
-            phidiasApi.get(vm.src)
-                .success(function(response) {
-                    vm.entity = response;
+        var vm               = this;
+        vm.entity            = null;
+        vm.records           = null;
+        vm.currentRecord     = {};
+        vm.saveCurrentRecord = saveCurrentRecord;
 
-                    // Fetch records
-                    if (phidiasApi.token) {
+        // Determine the current user, and the records URL
+        var recordsUrl  = null;
 
-                        recordsUrl = 'people/' + phidiasApi.token.id + '/data/entities/' + vm.entity.id + '/records';
+        phidiasApi.get(vm.src)
+            .success(function(response) {
+                vm.entity = response;
 
-                        phidiasApi.get(recordsUrl)
-                            .success(function(records) {
-                                vm.records = records;
-                            });
+                // Fetch records
+                if (phidiasApi.token) {
 
-                    }
+                    recordsUrl = 'people/' + phidiasApi.token.id + '/data/entities/' + vm.entity.id + '/records';
 
-                });
+                    phidiasApi.get(recordsUrl)
+                        .success(function(records) {
+                            vm.records = records;
+                        });
 
-            ///////////////////////////////
-
-            function saveCurrentRecord() {
-
-                if (!recordsUrl) {
-                    return;
                 }
 
-                phidiasApi.post(recordsUrl, vm.currentRecord)
-                    .success(function(response, code, headers) {
-                        vm.records       = [response];
-                        vm.currentRecord = {};
-                    });
+            });
 
+        ///////////////////////////////
+
+        function saveCurrentRecord() {
+
+            if (!recordsUrl) {
+                return;
             }
 
-        };
+            phidiasApi.post(recordsUrl, vm.currentRecord)
+                .success(function(response, code, headers) {
+                    vm.records       = [response];
+                    vm.currentRecord = {};
+                });
 
+        }
 
     };
+
 
 
 })();
