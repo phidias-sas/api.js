@@ -1,5 +1,6 @@
-var phidias = require('./phidias-gulp.js');
+var gulp    = require('gulp');
+var phidias = require('phidias-gulp')(gulp);
 
 phidias.build({
-    name: 'phidias-api'
+    name:     'phidias-api'
 });

@@ -365,22 +365,68 @@ phidiasStorage.local.retrieve('name', defaultValue);
             template: '<div>could not load {{vm.type}} {{vm.src}}</div>'
         };
 
+    };
 
-        phidiasApiResourceController.$inject = ["$element", "$compile", "$scope", "$injector"];
-        function phidiasApiResourceController($element, $compile, $scope, $injector) {
 
-            var expectedDirectiveName = "phidiasApiResource" + this.type.charAt(0).toUpperCase() + this.type.slice(1).toLowerCase() + 'Directive';
+    phidiasApiResourceController.$inject = ["$element", "$compile", "$scope", "$injector"];
+    function phidiasApiResourceController($element, $compile, $scope, $injector) {
 
-            if ($injector.has(expectedDirectiveName) ) {
-                var e = $compile('<phidias-api-resource-' + this.type + ' src="{{vm.src}}"></phidias-api-resource-' + this.type + '>')($scope);
-                $element.empty().append(e);
-            }
+        var expectedDirectiveName = "phidiasApiResource" + this.type.charAt(0).toUpperCase() + this.type.slice(1).toLowerCase() + 'Directive';
 
-        };
-
+        if ($injector.has(expectedDirectiveName) ) {
+            var e = $compile('<phidias-api-resource-' + this.type + ' src="{{vm.src}}"></phidias-api-resource-' + this.type + '>')($scope);
+            $element.empty().append(e);
+        }
 
     };
 
+})();
+(function() {
+    'use strict';
+
+    angular
+        .module("phidias-api")
+        .directive("phidiasApiResourceFiles", phidiasApiResourceFiles);
+
+    function phidiasApiResourceFiles() {
+
+        return {
+
+            restrict: "E",
+            scope: {
+                src: "@"
+            },
+            controller:       phidiasApiResourceFilesController,
+            controllerAs:     "vm",
+            bindToController: true,
+
+            template:   '<ul>' +
+                            '<li ng-repeat="item in vm.files" class="phidias-api-resource-files-file" ng-class="{selected: selected.url == item.url}" ng-click="select(item)">' +
+                                '<a class="thumbnail" target="_blank" href="{{item.url}}">' +
+                                    '<img ng-if="!!item.thumbnail" ng-src="{{item.thumbnail}}" />' +
+                                '</a>' +
+                                '<a class="details" target="_blank" href="{{item.url}}">' +
+                                    '<h3 ng-bind="item.title"></h3>' +
+                                    '<p>{{item.size|bytes}} - {{item.name}}</p>' +
+                                '</a>' +
+                            '</li>' +
+                        '</ul>'
+        };
+
+    }
+
+    phidiasApiResourceFilesController.$inject = ["phidiasApi"];
+    function phidiasApiResourceFilesController(phidiasApi) {
+
+        var vm   = this;
+        vm.files = [];
+
+        phidiasApi.get(vm.src)
+            .success(function(response) {
+                vm.files = response;
+            });
+
+    }
 
 })();
 (function() {
@@ -389,7 +435,6 @@ phidiasStorage.local.retrieve('name', defaultValue);
     angular
         .module("phidias-api")
         .directive("phidiasApiResourceForm", phidiasApiResourceForm);
-
 
     function phidiasApiResourceForm() {
 
@@ -455,110 +500,58 @@ phidiasStorage.local.retrieve('name', defaultValue);
         };
 
 
-        phidiasApiResourceFormController.$inject = ["phidiasApi"];
-        function phidiasApiResourceFormController(phidiasApi) {
-
-            var vm               = this;
-            vm.entity            = null;
-            vm.records           = null;
-            vm.currentRecord     = {};
-            vm.saveCurrentRecord = saveCurrentRecord;
-
-            // Determine the current user, and the records URL
-            var recordsUrl  = null;
-
-            phidiasApi.get(vm.src)
-                .success(function(response) {
-                    vm.entity = response;
-
-                    // Fetch records
-                    if (phidiasApi.token) {
-
-                        recordsUrl = 'people/' + phidiasApi.token.id + '/data/entities/' + vm.entity.id + '/records';
-
-                        phidiasApi.get(recordsUrl)
-                            .success(function(records) {
-                                vm.records = records;
-                            });
-
-                    }
-
-                });
-
-            ///////////////////////////////
-
-            function saveCurrentRecord() {
-
-                if (!recordsUrl) {
-                    return;
-                }
-
-                phidiasApi.post(recordsUrl, vm.currentRecord)
-                    .success(function(response, code, headers) {
-                        vm.records       = [response];
-                        vm.currentRecord = {};
-                    });
-
-            }
-
-        };
-
-
     };
 
 
-})();
-(function() {
-    'use strict';
+    phidiasApiResourceFormController.$inject = ["phidiasApi"];
+    function phidiasApiResourceFormController(phidiasApi) {
 
-    angular
-        .module("phidias-api")
-        .directive("phidiasApiResourceFiles", phidiasApiResourceFiles);
+        var vm               = this;
+        vm.entity            = null;
+        vm.records           = null;
+        vm.currentRecord     = {};
+        vm.saveCurrentRecord = saveCurrentRecord;
 
+        // Determine the current user, and the records URL
+        var recordsUrl  = null;
 
-    function phidiasApiResourceFiles() {
+        phidiasApi.get(vm.src)
+            .success(function(response) {
+                vm.entity = response;
 
+                // Fetch records
+                if (phidiasApi.token) {
 
-        return {
-            restrict: "E",
+                    recordsUrl = 'people/' + phidiasApi.token.id + '/data/entities/' + vm.entity.id + '/records';
 
-            scope: {
-                src: "@"
-            },
+                    phidiasApi.get(recordsUrl)
+                        .success(function(records) {
+                            vm.records = records;
+                        });
 
-            controller:       phidiasApiResourceFilesController,
-            controllerAs:     "vm",
-            bindToController: true,
+                }
 
-            template:   '<ul>' +
-                            '<li ng-repeat="item in vm.files" class="phidias-api-resource-files-file" ng-class="{selected: selected.url == item.url}" ng-click="select(item)">' +
-                                '<a class="thumbnail" target="_blank" href="{{item.url}}">' +
-                                    '<img ng-if="!!item.thumbnail" ng-src="{{item.thumbnail}}" />' +
-                                '</a>' +
-                                '<a class="details" target="_blank" href="{{item.url}}">' +
-                                    '<h3 ng-bind="item.title"></h3>' +
-                                    '<p>{{item.size|bytes}} - {{item.name}}</p>' +
-                                '</a>' +
-                            '</li>' +
-                        '</ul>'
-        };
+            });
 
-        ///////////////////////////////////
+        ///////////////////////////////
 
-        phidiasApiResourceFilesController.$inject = ["phidiasApi"];
-        function phidiasApiResourceFilesController(phidiasApi) {
+        function saveCurrentRecord() {
 
-            var vm   = this;
-            vm.files = [];
+            if (!recordsUrl) {
+                return;
+            }
 
-            phidiasApi.get(vm.src)
-                .success(function(response) {
-                    vm.files = response;
+            phidiasApi.post(recordsUrl, vm.currentRecord)
+                .success(function(response, code, headers) {
+                    vm.records       = [response];
+                    vm.currentRecord = {};
                 });
 
         }
 
-    }
+    };
+
+
 
 })();
 (function() {
@@ -585,20 +578,20 @@ phidiasStorage.local.retrieve('name', defaultValue);
             template:   '<div ng-bind-html="vm.html.body"></div>'
         };
 
+    }
 
-        phidiasApiResourceHtmlController.$inject = ["phidiasApi"];
-        function phidiasApiResourceHtmlController(phidiasApi) {
 
-            var vm  = this;
-            vm.html = null;
+    phidiasApiResourceHtmlController.$inject = ["phidiasApi"];
+    function phidiasApiResourceHtmlController(phidiasApi) {
 
-            phidiasApi.get(vm.src)
-                .success(function(response) {
-                    vm.html = response;
+        var vm  = this;
+        vm.html = null;
 
-                });
+        phidiasApi.get(vm.src)
+            .success(function(response) {
+                vm.html = response;
 
-        }
+            });
 
     }
 
@@ -629,29 +622,29 @@ phidiasStorage.local.retrieve('name', defaultValue);
                         '</div>'
         };
 
+    }
 
-        phidiasApiResourceYoutubeController.$inject = ["phidiasApi"];
-        function phidiasApiResourceYoutubeController(phidiasApi) {
-            var vm     = this;
-            vm.videoId = getYoutubeId(vm.src);
+
+    phidiasApiResourceYoutubeController.$inject = ["phidiasApi"];
+    function phidiasApiResourceYoutubeController(phidiasApi) {
+        var vm     = this;
+        vm.videoId = getYoutubeId(vm.src);
+    }
+
+    function getYoutubeId(url) {
+
+        if (!url.trim().length) {
+            return null;
         }
 
-        function getYoutubeId(url) {
-
-            if (!url.trim().length) {
-                return null;
-            }
-
-            var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            var match  = url.match(regExp);
-            if (match && match[2].length == 11) {
-                return match[2];
-            } else {
-                return null;
-            }
-        };
-
-    }
+        var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        var match  = url.match(regExp);
+        if (match && match[2].length == 11) {
+            return match[2];
+        } else {
+            return null;
+        }
+    };
 
 })();
 /*
