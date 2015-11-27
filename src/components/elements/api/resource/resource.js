@@ -31,7 +31,7 @@
         var expectedDirectiveName = "phidiasApiResource" + this.type.charAt(0).toUpperCase() + this.type.slice(1).toLowerCase() + 'Directive';
 
         if ($injector.has(expectedDirectiveName) ) {
-            var e = $compile('<phidias-api-resource-' + this.type + ' src="{{vm.src}}"></phidias-api-resource-' + this.type + '>')($scope);
+            var e = $compile('<phidias-api-resource-' + this.type + ' src="{{vm.src | trustAsResourceUrl}}"></phidias-api-resource-' + this.type + '>')($scope);
             $element.empty().append(e);
         }
 
