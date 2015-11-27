@@ -33702,41 +33702,41 @@ will produce
 
         };
 
-        phiGalleryController.$inject = ["$scope"];
-        function phiGalleryController($scope) {
+    };
 
-            var imageCount = 0;
 
-            var gallery = this;
+    phiGalleryController.$inject = ["$scope"];
+    function phiGalleryController($scope) {
 
-            gallery.control  = null;
+        var imageCount = 0;
 
-            gallery.title    = "foo";
-            gallery.images   = [];
-            gallery.addImage = addImage;
+        var gallery = this;
 
-            gallery.modalShown = false;
+        gallery.control  = null;
 
-            function addImage(galleryImage, element) {
+        gallery.title    = "foo";
+        gallery.images   = [];
+        gallery.addImage = addImage;
 
-                galleryImage.key = imageCount++;
+        gallery.modalShown = false;
 
-                gallery.images.push(galleryImage);
+        function addImage(galleryImage, element) {
 
-                element.on("click", function() {
-                    // !!! For some reason, the following code causes an error when minified
-                    $scope.$apply(function() {
-                        gallery.control.select(galleryImage.key);
-                        gallery.modalShown = true;
-                    });
+            galleryImage.key = imageCount++;
+
+            gallery.images.push(galleryImage);
+
+            element.on("click", function() {
+                // !!! For some reason, the following code causes an error when minified
+                $scope.$apply(function() {
+                    gallery.control.select(galleryImage.key);
+                    gallery.modalShown = true;
                 });
-            }
-
+            });
         }
 
-
-
     };
+
 
     function phiGalleryImage() {
 
@@ -34024,8 +34024,6 @@ someObject = {
 
     function phiObject() {
 
-        var objectService;
-
         return {
 
             restrict: "E",
@@ -34039,137 +34037,131 @@ someObject = {
             },
 
             controller:       phiObjectController,
-            controllerAs:     "vm",
-
-            link: phiObjectLink
+            controllerAs:     "vm"
 
         };
 
-        ////////////////////////
-
-        phiStatesController.$inject = ["$scope", "$element", "$controller", "$compile"];
-        function phiObjectController($scope, $element, $controller, $compile) {
-
-            var scope;
-
-            var vm          = this;
-
-            vm.ngModel      = $scope.ngModel;
-            vm.onChange     = $scope.onChange;
-            vm.onDestroy    = $scope.onDestroy;
-
-            vm.states       = [];
-            vm.currentState = null;
-            vm.go           = go;
-
-            vm.isLoading    = false;
-            vm.setLoading   = setLoading;
-
-            vm.change       = change;
-            vm.destroy      = destroy;
+    };
 
 
-            /* Load states from corresponding service */
-            objectService   = loadObjectService($scope.type, vm);
-            vm.states       = objectService.states;
+    phiObjectController.$inject = ["$scope", "$element", "$controller", "$compile"];
+    function phiObjectController($scope, $element, $controller, $compile) {
+
+        var scope;
+        var objectService;
+
+        var vm          = this;
+
+        vm.ngModel      = $scope.ngModel;
+        vm.onChange     = $scope.onChange;
+        vm.onDestroy    = $scope.onDestroy;
+
+        vm.states       = [];
+        vm.currentState = null;
+        vm.go           = go;
+
+        vm.isLoading    = false;
+        vm.setLoading   = setLoading;
+
+        vm.change       = change;
+        vm.destroy      = destroy;
 
 
-            /* Setup external controller */
-            vm.controller = {
-                states:       Object.keys(vm.states),
-                currentState: vm.currentState,
-                go:           go,
-                isLoading:    vm.isLoading
-            };
+        /* Load states from corresponding service */
+        objectService   = loadObjectService($scope.type, vm);
+        vm.states       = objectService.states;
 
-            if ($scope.controllerAs != undefined) {
-                $scope.controllerAs = vm.controller;
+
+        /* Setup external controller */
+        vm.controller = {
+            states:       Object.keys(vm.states),
+            currentState: vm.currentState,
+            go:           go,
+            isLoading:    vm.isLoading
+        };
+
+        if ($scope.controllerAs != undefined) {
+            $scope.controllerAs = vm.controller;
+        }
+
+        /* Run object initialization */
+        if (typeof objectService.initialize == "function") {
+            objectService.initialize();
+        } else if (vm.states.length) {
+            vm.go(Object.keys(vm.states)[0]);
+        }
+
+        /////////////
+
+        function go(targetStateName) {
+
+            if (vm.states[targetStateName] === undefined || vm.currentState == targetStateName) {
+                return;
             }
 
-            /////////////
-
-            function go(targetStateName) {
-
-                if (vm.states[targetStateName] === undefined || vm.currentState == targetStateName) {
-                    return;
-                }
-
-                if (scope) {
-                    scope.$destroy();
-                    scope = null;
-                }
-
-                scope = $scope.$new(true);
-                scope.phiObject = vm;
-
-                $element.removeClass("phi-object-state-"+vm.currentState);
-                $element.addClass("phi-object-state-"+targetStateName);
-
-                vm.currentState            = targetStateName;
-                vm.controller.currentState = targetStateName;
-
-                var targetState = vm.states[targetStateName];
-
-                if (targetState.controller) {
-
-                    var controllerObj = $controller(targetState.controller, {'$scope': scope});
-
-                    if (targetState.controllerAs) {
-                        scope[targetState.controllerAs] = controllerObj;
-                    }
-                }
-
-                if (targetState.template) {
-                    var e = $compile(targetState.template)(scope);
-                    $element.empty().append(e);
-                }
-
+            if (scope) {
+                scope.$destroy();
+                scope = null;
             }
 
-            function change() {
-                vm.onChange();
+            scope = $scope.$new(true);
+            scope.phiObject = vm;
+
+            $element.removeClass("phi-object-state-"+vm.currentState);
+            $element.addClass("phi-object-state-"+targetStateName);
+
+            vm.currentState            = targetStateName;
+            vm.controller.currentState = targetStateName;
+
+            var targetState = vm.states[targetStateName];
+
+            if (targetState.controller) {
+
+                var controllerObj = $controller(targetState.controller, {'$scope': scope});
+
+                if (targetState.controllerAs) {
+                    scope[targetState.controllerAs] = controllerObj;
+                }
             }
 
-            function destroy() {
-                vm.onDestroy();
-            }
-
-            function setLoading(isLoading) {
-                vm.isLoading            = isLoading;
-                vm.controller.isLoading = isLoading;
+            if (targetState.template) {
+                var e = $compile(targetState.template)(scope);
+                $element.empty().append(e);
             }
 
         }
 
-        function phiObjectLink(scope) {
-
-            var vm = scope.vm;
-
-            if (typeof objectService.initialize == "function") {
-                objectService.initialize();
-            } else if (vm.states.length) {
-                vm.go(Object.keys(vm.states)[0]);
-            }
-
+        function change() {
+            vm.onChange();
         }
 
-        function loadObjectService(type, vm) {
+        function destroy() {
+            vm.onDestroy();
+        }
 
-            var words = type.split("-").map(function(word) {
-                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-            });
+        function setLoading(isLoading) {
+            vm.isLoading            = isLoading;
+            vm.controller.isLoading = isLoading;
+        }
 
-            var serviceName  = "phiObject" + words.join("");
+    };
 
-            try {
-                var blockFactory = angular.element(document.body).injector().get(serviceName);
-                return blockFactory(vm);
-            } catch (err) {
-                console.log("Block service " + serviceName + " not found");
-                return {states: []};
-            }
 
-        };
+    function loadObjectService(type, vm) {
+
+        var words = type.split("-").map(function(word) {
+            return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        });
+
+        var serviceName  = "phiObject" + words.join("");
+
+        try {
+            var blockFactory = angular.element(document.body).injector().get(serviceName);
+            return blockFactory(vm);
+        } catch (err) {
+            console.log("Block service " + serviceName + " not found");
+            return {states: []};
+        }
 
     };
 
@@ -34177,42 +34169,42 @@ someObject = {
 /* Based on http://www.bennadel.com/blog/2756-experimenting-with-ngmodel-and-ngmodelcontroller-in-angularjs.htm */
 
 (function() {
-'use strict';
+    'use strict';
 
-angular
-    .module("phidias-ui")
-    .directive("phiSelect", phiSelect)
-    .directive("phiOption", phiOption);
+    angular
+        .module("phidias-ui")
+        .directive("phiSelect", phiSelect)
+        .directive("phiOption", phiOption);
 
-function phiSelect() {
+    function phiSelect() {
+
+        return {
+
+            restrict: "E",
+            require: "?ngModel",
+
+            transclude: true,
+            template:  '<div id="{{vm.uniqueId}}" class="phi-select-face" ng-click="vm.expand()" ng-class="{\'phi-select-expanded\': vm.isExpanded}">' +
+                           '<div ng-show="!vm.isExpanded" class="phi-select-value"></div>' +
+                           '<input ng-show="!!vm.isExpanded" type="text" ng-model="vm.query" tabindex="-1" size="2" />' +
+                       '</div>' +
+                       '<phi-menu ng-transclude phi-texture="paper" phi-tooltip-for="{{vm.uniqueId}}" phi-visible="{{vm.isExpanded}}" phi-visible-animation="slide-bottom"></phi-menu>',
+
+            scope: {
+                onSearch: "&phiOnSearch"
+            },
+
+            controller:       phiSelectController,
+            controllerAs:     "vm",
+            bindToController: true,
+
+            link: phiSelectLink
+
+        };
+
+    }
 
     var phiSelectLinkCounter = 0;
-
-    return {
-
-        restrict: "E",
-        require: "?ngModel",
-
-        transclude: true,
-        template:  '<div id="{{vm.uniqueId}}" class="phi-select-face" ng-click="vm.expand()" ng-class="{\'phi-select-expanded\': vm.isExpanded}">' +
-                       '<div ng-show="!vm.isExpanded" class="phi-select-value"></div>' +
-                       '<input ng-show="!!vm.isExpanded" type="text" ng-model="vm.query" tabindex="-1" size="2" />' +
-                   '</div>' +
-                   '<phi-menu ng-transclude phi-texture="paper" phi-tooltip-for="{{vm.uniqueId}}" phi-visible="{{vm.isExpanded}}" phi-visible-animation="slide-bottom"></phi-menu>',
-
-        scope: {
-            onSearch: "&phiOnSearch"
-        },
-
-        controller:       phiSelectController,
-        controllerAs:     "vm",
-        bindToController: true,
-
-        link: phiSelectLink
-
-    };
-
-
     function phiSelectLink(scope, element, attrs, ngModel) {
 
         // Prepare element
@@ -34258,7 +34250,7 @@ function phiSelect() {
             scope.vm.onSearch({query: newValue});
         });
 
-    };
+    }
 
 
     phiSelectController.$inject = ["$scope", "$document", "$element", "$timeout"];
@@ -34313,7 +34305,6 @@ function phiSelect() {
 
         };
 
-
         function documentClicked(e) {
 
             // Ignore clicks within element
@@ -34324,27 +34315,23 @@ function phiSelect() {
             $scope.$apply(vm.collapse);
         };
 
-
-    };
-
-};
+    }
 
 
-function phiOption() {
+    function phiOption() {
 
-    return {
-        restrict:   "E",
-        require:    "^phiSelect",
-        template:   '<a ng-transclude></a>',
-        transclude: true,
+        return {
+            restrict:   "E",
+            require:    "^phiSelect",
+            template:   '<a ng-transclude></a>',
+            transclude: true,
 
-        link: function(scope, element, attributes, phiSelect) {
-            phiSelect.attachOptionElement(element);
-        }
-    };
+            link: function(scope, element, attributes, phiSelect) {
+                phiSelect.attachOptionElement(element);
+            }
+        };
 
-};
-
+    }
 
 })();
 /*
@@ -34391,56 +34378,6 @@ Creates a containing element tinted with the given hue
         .module('phidias-api', [
             'angularFileUpload'
         ]);
-
-})();
-/*
-phidiasStorage.session.store('name', value);
-phidiasStorage.session.retrieve('name', defaultValue);
-
-phidiasStorage.local.store('name', value);
-phidiasStorage.local.retrieve('name', defaultValue);
-
-*/
-(function() {
-    'use strict';
-
-    angular
-        .module('phidias-api')
-        .factory('phidiasStorage', phidiasStorage);
-
-    function phidiasStorage() {
-
-        return {
-            session: getWrapper(window.sessionStorage),
-            local:   getWrapper(window.localStorage)
-        };
-
-    };
-
-    function getWrapper(storage) {
-
-        return {
-
-            set: function(name, value) {
-                storage[name] = angular.toJson(value);
-            },
-
-            get: function(name, defaultValue) {
-                return storage[name] === undefined ? defaultValue : angular.fromJson(storage[name]);
-            },
-
-            clear: function(name) {
-
-                if (name !== undefined) {
-                    return storage.removeItem(name);
-                }
-
-                return storage.clear();
-            }
-
-        }
-
-    };
 
 })();
 (function() {
@@ -34727,6 +34664,56 @@ phidiasStorage.local.retrieve('name', defaultValue);
     }
 
 })();
+/*
+phidiasStorage.session.store('name', value);
+phidiasStorage.session.retrieve('name', defaultValue);
+
+phidiasStorage.local.store('name', value);
+phidiasStorage.local.retrieve('name', defaultValue);
+
+*/
+(function() {
+    'use strict';
+
+    angular
+        .module('phidias-api')
+        .factory('phidiasStorage', phidiasStorage);
+
+    function phidiasStorage() {
+
+        return {
+            session: getWrapper(window.sessionStorage),
+            local:   getWrapper(window.localStorage)
+        };
+
+    };
+
+    function getWrapper(storage) {
+
+        return {
+
+            set: function(name, value) {
+                storage[name] = angular.toJson(value);
+            },
+
+            get: function(name, defaultValue) {
+                return storage[name] === undefined ? defaultValue : angular.fromJson(storage[name]);
+            },
+
+            clear: function(name) {
+
+                if (name !== undefined) {
+                    return storage.removeItem(name);
+                }
+
+                return storage.clear();
+            }
+
+        }
+
+    };
+
+})();
 (function() {
 
     angular
@@ -34760,7 +34747,7 @@ phidiasStorage.local.retrieve('name', defaultValue);
         var expectedDirectiveName = "phidiasApiResource" + this.type.charAt(0).toUpperCase() + this.type.slice(1).toLowerCase() + 'Directive';
 
         if ($injector.has(expectedDirectiveName) ) {
-            var e = $compile('<phidias-api-resource-' + this.type + ' src="{{vm.src}}"></phidias-api-resource-' + this.type + '>')($scope);
+            var e = $compile('<phidias-api-resource-' + this.type + ' src="{{vm.src | trustAsResourceUrl}}"></phidias-api-resource-' + this.type + '>')($scope);
             $element.empty().append(e);
         }
 
