@@ -1,5 +1,5 @@
 @charset "UTF-8";
-@import "http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css";
+@import "https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css";
 /*
 
 Set colors based on current color theme
@@ -23,7 +23,7 @@ Set colors based on current color theme
 
 
 */
-@import "http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css";
+@import "https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css";
 /*
 
 Set colors based on current color theme
@@ -5186,6 +5186,16 @@ Set colors based on current color theme
 .phi-rounded {
   border-radius: 3px; }
 
+[phi-boundary] {
+  margin: auto;
+  padding: 0;
+  max-width: 1024px; }
+
+@media (max-width: 600px) {
+  [phi-boundary] {
+    max-width: none;
+    padding: 4px; } }
+
 [phi-button] {
   display: inline-block;
   padding: 12px 20px;
@@ -6355,16 +6365,6 @@ Set colors based on current color theme
 
 [phi-button]:active[phi-color-theme=yellow] {
   background-color: #fbc02d !important; }
-
-[phi-boundary] {
-  margin: auto;
-  padding: 0;
-  max-width: 1024px; }
-
-@media (max-width: 600px) {
-  [phi-boundary] {
-    max-width: none;
-    padding: 4px; } }
 
 [phi-color-background="50"] {
   background-color: #dae8f8;

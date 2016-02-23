@@ -1,0 +1,35 @@
+phidias-api-icons {
+
+    display: block;
+
+    ul {
+
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        li {
+            display: inline-block;
+            margin: 0;
+            padding: 0;
+
+            span {
+                display: inline-block;
+                vertical-align: top;
+                text-align: center;
+                color: #666;
+                font-size: 18px;
+                line-height: 18px;
+                width: 24px;
+                height: 24px;
+                padding: 8px;
+
+                &.selected {
+                    color: red;
+                    font-size: 22px;
+                }
+            }
+        }
+    }
+
+}

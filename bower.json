@@ -1,11 +1,12 @@
 {
   "name": "phidias-api",
   "description": "Phidias API client for AngularJS",
-  
+
   "main": [
-    "./public/build/phidias-api.js"
+    "./public/build/phidias-api.js",
+    "./public/build/phidias-api.css"
   ],
-  
+
   "ignore": [],
 
   "dependencies": {

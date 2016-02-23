@@ -20,7 +20,7 @@
             controllerAs:     "vm",
 
             template:   '<div>' +
-                            '<iframe ng-if="!!vm.videoId" width="100%" height="420" ng-src="{{\'http://www.youtube.com/embed/\' + vm.videoId | trustAsResourceUrl}}" frameborder="0" allowfullscreen></iframe>' + 
+                            '<iframe ng-if="!!vm.videoId" width="100%" height="420" ng-src="{{\'https://www.youtube.com/embed/\' + vm.videoId | trustAsResourceUrl}}" frameborder="0" allowfullscreen></iframe>' + 
                         '</div>'
         };
 

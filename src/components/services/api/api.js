@@ -67,7 +67,7 @@
                 var storedToken = phidiasStorage.session.get('phidiasApi.tokenString');
                 if (storedToken) {
                     service.setToken(storedToken);
-                }            
+                }
             };
 
             function setHost(host) {
@@ -156,8 +156,6 @@
                     data:   data
                 };
 
-                angular.extend(request, config);
-
                 if (service.tokenString) {
                     angular.extend(request, {
                         headers: {
@@ -165,6 +163,8 @@
                         }
                     });
                 }
+
+                angular.extend(request, config);
 
                 if (method == 'get') {
                     request.url += '?' + serialize(data);
