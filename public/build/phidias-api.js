@@ -28,8 +28,8 @@
             provider.host = host;
         }
 
-        service.$inject = ['$http', 'phidiasApiToken', 'phidiasStorage'];
-        function service($http, phidiasApiToken, phidiasStorage) {
+        service.$inject = ['$http', 'phidiasApiToken'];
+        function service($http, phidiasApiToken) {
 
             var service = {
 
@@ -40,10 +40,7 @@
                 /* Authentication functions */
                 tokenString:     null,
                 token:           null, //decoded token payload
-                isAuthenticated: false,
                 setToken:        setToken,
-                login:           login,
-                logout:          logout,
 
                 /* Main service functions */
                 get:      get,
@@ -52,84 +49,25 @@
                 patch:    patch,
                 options:  options,
                 remove:   deleteFn,  //alias, when phidiasApi.delete() causes a syntax error ('delete' is a reserved JS keyword)
-                'delete': deleteFn,
-
-
-                /* Event listeners */
-                listeners: {
-                    login:  [],
-                    logout: []
-                },
-
-                onLogin:  onLogin,
-                onLogout: onLogout
+                'delete': deleteFn
             }
-
-            activate();
 
             return service;
 
             ///////
 
-            function activate() {
-                /* Look for existing session */
-                var storedToken = phidiasStorage.session.get('phidiasApi.tokenString');
-                if (storedToken) {
-                    service.setToken(storedToken);
-                }
-            };
-
             function setHost(host) {
                 service.host = host;
-            };
-
-            function onLogin(callback) {
-                service.listeners.login.push(callback);
-            };
-
-            function onLogout(callback) {
-                service.listeners.logout.push(callback);
-            };
-
-            function login(username, password) {
-
-                return service.post('oauth/token', 'grant_type=client_credentials',
-                        {
-                            headers: {
-                                'Authorization': 'Basic ' + btoa(username + ':' + password),
-                                'Content-Type': 'application/x-www-form-urlencoded'
-                            }
-                        }
-                    )
-                    .success(function(data) {
-                        service.setToken(data.access_token);
-
-                        for (var cont = 0; cont < service.listeners.login.length; cont++) {
-                            service.listeners.login[cont](service);
-                        }
-
-                    });
-
             }
 
             function setToken(tokenString) {
-                service.token           = phidiasApiToken.decode(tokenString);
-                service.tokenString     = tokenString;
-                service.isAuthenticated = true;
-
-                phidiasStorage.session.set('phidiasApi.tokenString', tokenString);
-            }
-
-            function logout() {
-                service.tokenString     = null;
-                service.token           = null;
-                service.isAuthenticated = false;
-                phidiasStorage.session.clear('phidiasApi.tokenString');
-
-                for (var cont = 0; cont < service.listeners.logout.length; cont++) {
-                    service.listeners.logout[cont](service);
+                if (tokenString) {
+                    service.token           = phidiasApiToken.decode(tokenString);
+                    service.tokenString     = tokenString;
+                } else {
+                    service.token           = null;
+                    service.tokenString     = null;
                 }
-
             }
 
             function get(resource, data, config) {
@@ -643,54 +581,6 @@ phidiasStorage.local.retrieve('name', defaultValue);
 
     angular
         .module("phidias-api")
-        .directive("phidiasApiResourceFiles", phidiasApiResourceFiles);
-
-    function phidiasApiResourceFiles() {
-
-        return {
-
-            restrict: "E",
-            scope: {
-                src: "@"
-            },
-            controller:       phidiasApiResourceFilesController,
-            controllerAs:     "vm",
-            bindToController: true,
-
-            template:   '<ul>' +
-                            '<li ng-repeat="item in vm.files" class="phidias-api-resource-files-file" ng-class="{selected: selected.url == item.url}" ng-click="select(item)">' +
-                                '<a class="thumbnail" target="_blank" href="{{item.url}}">' +
-                                    '<img ng-if="!!item.thumbnail" ng-src="{{item.thumbnail}}" />' +
-                                '</a>' +
-                                '<a class="details" target="_blank" href="{{item.url}}">' +
-                                    '<h3 ng-bind="item.title"></h3>' +
-                                    '<p>{{item.size|bytes}} - {{item.name}}</p>' +
-                                '</a>' +
-                            '</li>' +
-                        '</ul>'
-        };
-
-    }
-
-    phidiasApiResourceFilesController.$inject = ["phidiasApi"];
-    function phidiasApiResourceFilesController(phidiasApi) {
-
-        var vm   = this;
-        vm.files = [];
-
-        phidiasApi.get(vm.src)
-            .success(function(response) {
-                vm.files = response;
-            });
-
-    }
-
-})();
-(function() {
-    'use strict';
-
-    angular
-        .module("phidias-api")
         .directive("phidiasApiResourceForm", phidiasApiResourceForm);
 
     function phidiasApiResourceForm() {
@@ -848,6 +738,54 @@ phidiasStorage.local.retrieve('name', defaultValue);
             .success(function(response) {
                 vm.html = response;
 
+            });
+
+    }
+
+})();
+(function() {
+    'use strict';
+
+    angular
+        .module("phidias-api")
+        .directive("phidiasApiResourceFiles", phidiasApiResourceFiles);
+
+    function phidiasApiResourceFiles() {
+
+        return {
+
+            restrict: "E",
+            scope: {
+                src: "@"
+            },
+            controller:       phidiasApiResourceFilesController,
+            controllerAs:     "vm",
+            bindToController: true,
+
+            template:   '<ul>' +
+                            '<li ng-repeat="item in vm.files" class="phidias-api-resource-files-file" ng-class="{selected: selected.url == item.url}" ng-click="select(item)">' +
+                                '<a class="thumbnail" target="_blank" href="{{item.url}}">' +
+                                    '<img ng-if="!!item.thumbnail" ng-src="{{item.thumbnail}}" />' +
+                                '</a>' +
+                                '<a class="details" target="_blank" href="{{item.url}}">' +
+                                    '<h3 ng-bind="item.title"></h3>' +
+                                    '<p>{{item.size|bytes}} - {{item.name}}</p>' +
+                                '</a>' +
+                            '</li>' +
+                        '</ul>'
+        };
+
+    }
+
+    phidiasApiResourceFilesController.$inject = ["phidiasApi"];
+    function phidiasApiResourceFilesController(phidiasApi) {
+
+        var vm   = this;
+        vm.files = [];
+
+        phidiasApi.get(vm.src)
+            .success(function(response) {
+                vm.files = response;
             });
 
     }
