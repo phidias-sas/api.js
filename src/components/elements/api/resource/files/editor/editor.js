@@ -35,10 +35,10 @@ This element provides an interface with a phidias filesystem endpoint
                                     '<a class="thumbnail" target="_blank" href="{{item.url}}">' +
                                         '<img ng-if="!!item.thumbnail" ng-src="{{item.thumbnail}}" />' +
                                     '</a>' +
-                                    '<div class="details">' + 
+                                    '<div class="details">' +
                                         '<phi-input ng-model="item.title" ng-change="change(item)" ng-model-options="{ updateOn: \'default blur\', debounce: { \'default\': 1000, \'blur\': 0 } }"></phi-input>' +
-                                        '<p>{{item.size|bytes}} - {{item.name}}</p>' + 
-                                    '</div>' + 
+                                        '<p>{{item.size|bytes}} - {{item.name}}</p>' +
+                                    '</div>' +
                                     '<a class="phidias-api-resource-files-file-delete" ng-click="delete(item, $event)" phi-icon="fa-trash-o"></a>' +
                                 '</li>' +
                             '</ul>' +
@@ -50,20 +50,20 @@ This element provides an interface with a phidias filesystem endpoint
                                         '<div class="thumbnail">' +
                                             '<div ng-if="item.file.type.substring(0,5) == \'image\'" ng-thumb="{file: item._file, height: 100}"></div>' +
                                         '</div>' +
-                                        '<div class="details">' + 
+                                        '<div class="details">' +
                                             '<h3 ng-bind="item.file.name"></h3>' +
-                                        '</div>' + 
+                                        '</div>' +
                                         '<progress max="100" value="{{item.progress}}"></progress>' +
                                         '<a class="phidias-api-resource-files-file-delete" ng-click="item.remove()" phi-icon="fa-times"></a>' +
                                     '</li>' +
                                 '</ul>' +
 
-                                '<div class="phidias-api-filesystem-dropzone" nv-file-over uploader="uploader" ng-click="clickDropZone()">' + 
-                                    '<div nv-file-drop uploader="uploader">Arrastra archivos aqu&iacute; o haz click</div>' + 
+                                '<div class="phidias-api-filesystem-dropzone" nv-file-over uploader="uploader" ng-click="clickDropZone()">' +
+                                    '<div nv-file-drop uploader="uploader">Arrastra archivos aqu&iacute; o haz click</div>' +
                                 '</div>' +
                                 '<input class="file-input" type="file" nv-file-select uploader="uploader" multiple />' +
 
-                            '</div>' + 
+                            '</div>' +
 
                         '</div>',
 
@@ -124,7 +124,9 @@ This element provides an interface with a phidias filesystem endpoint
 
                 var uploadsUrl = phidiasApi.host ? phidiasApi.host + "/" + scope.src : scope.src;
 
-                scope.uploader = new FileUploader({url: uploadsUrl});
+                scope.uploader = new FileUploader({url: uploadsUrl, headers: {
+                    'Authorization': 'Bearer ' + phidiasApi.tokenString
+                }});
 
                 scope.uploader.onAfterAddingAll = function(addedItems) {
                     scope.uploader.uploadAll();
